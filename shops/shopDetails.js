@@ -1,61 +1,58 @@
-const renderData = require('./data.js');
+const data = require('./data.js');
 
-const getMinimumStatus = (array, currentPrice) => {
-   const minPrice = array.reduce((acc, cur) =>
+const getMinimumStatus = (prices, currentPrice) => {
+   const minPrice = prices.reduce((acc, cur) =>
       !Number(cur.price) || (acc < cur.price) ? acc : cur.price);
    const minStatus = (minPrice == currentPrice) ? true : false;
-   
+
    return minStatus;
 }
 
-const getMaximumStatus = (array, currentPrice) => {
-   const maxPrice = array.reduce((acc, cur) =>
+const getMaximumStatus = (prices, currentPrice) => {
+   const maxPrice = prices.reduce((acc, cur) =>
       !Number(cur.price) || (acc > cur.price) ? acc : cur.price, 0);
    const maxStatus = (maxPrice == currentPrice) ? true : false;
 
    return maxStatus;
 }
 
-const getShopPriceDetails = ({ price }, index, array) => {
+const getShopPriceDetails = ({price}, index, prices) => {
    return {
       price: price,
-      minimum: getMinimumStatus(array, price),
-      maximum: getMaximumStatus(array, price),
-      
+      minimum: getMinimumStatus(prices, price),
+      maximum: getMaximumStatus(prices, price),
+
    };
 }
 
 const getItemDetails = (shopItems) => shopItems.map((item) => item.name);
 
-const getItemPrice = (shopItems, uniqueName) => {
-   const price = (shopItems.find((item) => item.name === uniqueName) || { price: "-" })?.price;
+const getItemPrice = (shopItems, name) => {
+   const price = (shopItems.find((item) => item.name === name) || { price: "-" })?.price;
 
    return { price };
 }
 
-const getShopPrices = (uniqueName) => renderData.map((shopItems) =>
-   getItemPrice(shopItems.items, uniqueName));
+const getShopPrices = (name) => data.map((shopItems) =>
+   getItemPrice(shopItems.items, name));
 
-const display = (renderData) => {
-   const shopNames = renderData.map((shop) => shop.shopName);
+const getShopList = (name) => getShopPrices(name).map(getShopPriceDetails);
 
-   const shopItems = renderData.map((shop) =>
-      getItemDetails(shop.items)
-   ).flat();
+const getShopItems = (shops) => [... new Set(shops.map((shop) =>
+   getItemDetails(shop.items)).flat())];
 
-   const uniqueItem = [...new Set(shopItems)];
-
-   const items = uniqueItem.map((uniqueName) => ({
-      name: uniqueName,
-      shopPrices: getShopPrices(uniqueName).map(getShopPriceDetails),
-
+const display = (shops) => {
+   const shopNames = shops.map((shop) => shop.shopName);
+   const items = getShopItems(shops).map((name) => ({
+      name: name,
+      shopPrices: getShopList(name),
    }));
 
    return { shopNames, items };
 }
 
 const main = () => {
-   console.log(JSON.stringify(display(renderData), null, " "));
+   console.log(JSON.stringify(display(data), null, " "));
 }
 
 main();

@@ -1,4 +1,4 @@
-const renderData = {
+const data = {
   shopNames:[
       "shop1",
       "shop2",
