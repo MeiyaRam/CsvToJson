@@ -2,7 +2,7 @@ const data = require('./data.js');
 
 const getMinimumStatus = (prices, currentPrice) => {
    const minPrice = prices.reduce((acc, cur) =>
-      !Number(cur.price) || (acc < cur.price) ? acc : cur.price);
+      (!Number(cur) || (acc < cur)) ? acc : cur);
    const minStatus = (minPrice == currentPrice) ? true : false;
 
    return minStatus;
@@ -10,28 +10,21 @@ const getMinimumStatus = (prices, currentPrice) => {
 
 const getMaximumStatus = (prices, currentPrice) => {
    const maxPrice = prices.reduce((acc, cur) =>
-      !Number(cur.price) || (acc > cur.price) ? acc : cur.price, 0);
+      (!Number(cur) || (acc > cur)) ? acc : cur, 0);
    const maxStatus = (maxPrice == currentPrice) ? true : false;
 
    return maxStatus;
 }
 
-const getShopPriceDetails = ({price}, index, prices) => {
-   return {
+const getShopPriceDetails = (price, index, prices) => ({
       price: price,
       minimum: getMinimumStatus(prices, price),
       maximum: getMaximumStatus(prices, price),
-
-   };
-}
+});
 
 const getItemDetails = (shopItems) => shopItems.map((item) => item.name);
 
-const getItemPrice = (shopItems, name) => {
-   const price = (shopItems.find((item) => item.name === name) || { price: "-" })?.price;
-
-   return { price };
-}
+const getItemPrice = (shopItems, name) => (shopItems.find((item) => item.name === name) || { price: "-" })?.price;
 
 const getShopPrices = (name) => data.map((shopItems) =>
    getItemPrice(shopItems.items, name));
