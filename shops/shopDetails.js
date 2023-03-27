@@ -1,51 +1,45 @@
 const data = require('./data.js');
+const { pick } = require('@laufire/utils/collection');
 
-const getMinimumStatus = (prices, currentPrice) => {
-   const minPrice = prices.reduce((acc, cur) =>
-      (!Number(cur) || (acc < cur)) ? acc : cur);
-   const minStatus = (minPrice == currentPrice) ? true : false;
+const getItemPrice = (shopItems, name) => {
+   const item = (shopItems.find((items) => (items.name === name)));
+   const prices = pick(data, "items").flat();
+   const uniqueItems = prices.filter((item) => item.name == name);
+   const priceDetails = item
+      ? {
+         price: item.price,
+         minimum: item.price == Math.min(...pick(uniqueItems, "price")),
+         maximum: item.price == Math.max(...pick(uniqueItems, "price")),
+      }
+      : {
+         price: "-",
+         minimum: false,
+         maximum: false
+      }
 
-   return minStatus;
-}
-
-const getMaximumStatus = (prices, currentPrice) => {
-   const maxPrice = prices.reduce((acc, cur) =>
-      (!Number(cur) || (acc > cur)) ? acc : cur, 0);
-   const maxStatus = (maxPrice == currentPrice) ? true : false;
-
-   return maxStatus;
-}
-
-const getShopPriceDetails = (price, index, prices) => ({
-      price: price,
-      minimum: getMinimumStatus(prices, price),
-      maximum: getMaximumStatus(prices, price),
-});
-
-const getItemDetails = (shopItems) => shopItems.map((item) => item.name);
-
-const getItemPrice = (shopItems, name) => (shopItems.find((item) => item.name === name) || { price: "-" })?.price;
+   return priceDetails;
+};
 
 const getShopPrices = (name) => data.map((shopItems) =>
    getItemPrice(shopItems.items, name));
 
-const getShopList = (name) => getShopPrices(name).map(getShopPriceDetails);
+const getItemDetails = (shopItems) => shopItems.map((item) => item.name);
 
 const getShopItems = (shops) => [... new Set(shops.map((shop) =>
    getItemDetails(shop.items)).flat())];
 
-const display = (shops) => {
+const renderData = (shops) => {
    const shopNames = shops.map((shop) => shop.shopName);
    const items = getShopItems(shops).map((name) => ({
       name: name,
-      shopPrices: getShopList(name),
+      shopPrices: getShopPrices(name),
    }));
 
    return { shopNames, items };
 }
 
 const main = () => {
-   console.log(JSON.stringify(display(data), null, " "));
+   console.log(JSON.stringify(renderData(data), null, " "));
 }
 
 main();
