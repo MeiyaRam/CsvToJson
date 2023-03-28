@@ -25,12 +25,12 @@ const getShopPrices = (name) => data.map((shopItems) =>
 
 const getItemDetails = (shopItems) => shopItems.map((item) => item.name);
 
-const getShopItems = (shops) => [... new Set(shops.map((shop) =>
+const getItemNames = (shops) => [...new Set(shops.map((shop) => 
    getItemDetails(shop.items)).flat())];
 
 const renderData = (shops) => {
-   const shopNames = shops.map((shop) => shop.shopName);
-   const items = getShopItems(shops).map((name) => ({
+   const shopNames = pick(data,"shopName");
+   const items = getItemNames(shops).map((name) => ({
       name: name,
       shopPrices: getShopPrices(name),
    }));
