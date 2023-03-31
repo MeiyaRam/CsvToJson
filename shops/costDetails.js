@@ -1,13 +1,12 @@
 const data = require('./recursionData.js');
-
-let findCost = 0;
+const { reduce } = require('@laufire/utils/collection');
 
 const renderData = (costData) => {
   const innerCost = costData.tasks ? (costData.tasks.map((task) => renderData(task))) : '-';
-  findCost += costData.cost;
 
   return {
-    cost: (innerCost == '-') ? costData.cost : findCost,
+    cost: (innerCost == '-') ? costData.cost :  costData.cost + reduce(innerCost,(acc,cur) => 
+    acc+cur.cost,0),
     tasks: innerCost
   };
 }
